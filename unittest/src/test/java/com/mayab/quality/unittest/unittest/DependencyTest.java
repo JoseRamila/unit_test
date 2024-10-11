@@ -30,6 +30,7 @@ class DependencyTest {
     
         String name = dependency.getSubDependencyClassName();
         System.out.println("Name: " + name);
+        System.out.println("Hola");
         assertThat(name, is("Mockito subdependency"));
     }
 }
