@@ -4,6 +4,15 @@ public class User {
     private boolean isLogged;
     private String email;
     private String password;
+    private int id;
+    private String name;
+
+    public User(String name, String email, String password) {
+        this.name = name;
+        this.email = email;
+        this.password = password;
+    }
+
     public boolean isLogged() {
         return isLogged;
     }
@@ -30,6 +39,21 @@ public class User {
         this.password = password;
     }
 
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 
 }
 
