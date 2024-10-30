@@ -25,9 +25,9 @@ class LoginServiceTest {
 
     @Test
     void testLoginSuccess() {
-        when(daoMock.findbyUserName("test@example.com")).thenReturn(mockUser);
+        when(daoMock.findByUserName("User1")).thenReturn(mockUser);
         when(mockUser.getPassword()).thenReturn("password123");
-        boolean result = loginService.login("test@example.com", "password123");
+        boolean result = loginService.login("User1", "password123");
         assertThat(result, is(true));
         if (result) {
             System.out.println("Login exitoso para el email: test@example.com");

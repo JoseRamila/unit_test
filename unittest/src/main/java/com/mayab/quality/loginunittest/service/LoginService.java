@@ -8,7 +8,7 @@ public class LoginService {
         dao = d;
     }
     public boolean login(String email, String pass) {
-        User u = dao.findbyUserName(email);
+        User u = dao.findByUserName(email);
         if ( u != null) {
             if(u.getPassword() == pass) {
                 return  true;

@@ -17,6 +17,7 @@ import com.mayab.quality.loginunittest.dao.IDAOUser;
 import com.mayab.quality.loginunittest.model.User;
 import org.mockito.stubbing.Answer;
 
+import java.sql.SQLException;
 import java.util.HashMap;
 
 public class UserServiceTest {
@@ -31,7 +32,7 @@ public class UserServiceTest {
         db = new HashMap<Integer, User>();
     }
     @Test
-    public void whenPasswordShort(){
+    public void whenPasswordShort() throws SQLException {
         // Initialize
         String shortPass = "123";
         String name = "user1";
