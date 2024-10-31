@@ -1,39 +1,87 @@
 package com.mayab.quality.loginunittest.dao;
 
+import com.mayab.quality.loginunittest.dao.UserMysqlDAO;
+import com.mayab.quality.loginunittest.model.User;
+import org.dbunit.Assertion;
 import org.dbunit.DBTestCase;
 import org.dbunit.PropertiesBasedJdbcDatabaseTester;
+import org.dbunit.database.DatabaseConfig;
 import org.dbunit.database.IDatabaseConnection;
 import org.dbunit.dataset.IDataSet;
+import org.dbunit.dataset.ITable;
+import org.dbunit.dataset.xml.FlatXmlDataSetBuilder;
 import org.dbunit.operation.DatabaseOperation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.sql.SQLException;
+
+import static org.junit.jupiter.api.Assertions.fail;
 
 class UserMysqlDaoTest extends DBTestCase {
 
-    public UserMysqlDaoTest(){
-        System.setProperties(PropertiesBasedJdbcDatabaseTester.DBUNIT_DRIVER_CLASS"com.mysql.cj.jdbc.Driver");
+    UserMysqlDAO daoMySql;
 
-    }
+    public UserMysqlDaoTest() {
+        System.setProperty(PropertiesBasedJdbcDatabaseTester.DBUNIT_DRIVER_CLASS,"com.mysql.cj.jdbc.Driver");
+        System.setProperty(PropertiesBasedJdbcDatabaseTester.DBUNIT_CONNECTION_URL,"jdbc:mysql://localhost:3307/calidad");
+        System.setProperty(PropertiesBasedJdbcDatabaseTester.DBUNIT_USERNAME,"root");
+        System.setProperty(PropertiesBasedJdbcDatabaseTester.DBUNIT_PASSWORD,"123456");
 
-    @Override
-    protected IDataSet getDataSet() throws Exception {
-        return null;
     }
 
     @BeforeEach
-    public void setUp() throws Exception {
-        UserMysqlDao daoMysql = new UserMysqlDao();
+    protected void setUp() throws Exception {
+        // Initialize DAO
+        daoMySql = new UserMysqlDAO();
+        // Set the initial condition of the database
         IDatabaseConnection connection = getConnection();
         try {
-            DatabaseOperation.TRUNCATE_TABLE.execute(connection, getDataSet());
+            DatabaseOperation.TRUNCATE_TABLE.execute(connection,getDataSet());
             DatabaseOperation.CLEAN_INSERT.execute(connection, getDataSet());
-        } catch (Exception e) {
-            fail("Error in setup: " + e.getMessage());
+
+        } catch(Exception e) {
+            fail("Error in setup: "+ e.getMessage());
         } finally {
             connection.close();
         }
-
     }
+
+    protected IDataSet getDataSet() throws Exception
+    {
+        return new FlatXmlDataSetBuilder().build(new FileInputStream("src/resources/initDB.xml"));
+    }
+
+    @SuppressWarnings("deprecation")
+    @Test
+    public void testAgregarUsuario() {
+        User usuario = new User("username2", "correo2@correo.com", "123456");
+
+        daoMySql.save(usuario);
+
+        // Verify data in database
+        try {
+            // This is the full database
+            IDatabaseConnection conn = getConnection();
+            conn.getConfig().setProperty(DatabaseConfig.FEATURE_CASE_SENSITIVE_TABLE_NAMES, true);
+            IDataSet databaseDataSet = conn.createDataSet();
+            String[] tablas = databaseDataSet.getTableNames();
+
+            ITable actualTable = databaseDataSet.getTable("usuarios");
+
+            // Read XML with the expected result
+            IDataSet expectedDataSet = new FlatXmlDataSetBuilder().build(new File("src/resources/create.xml"));
+            ITable expectedTable = expectedDataSet.getTable("usuarios");
+
+            Assertion.assertEquals(expectedTable, actualTable);
+
+
+        } catch (Exception e) {
+            // TODO: handle exception
+            fail("Error in insert test: " + e.getMessage());
+        }
+    }
+
 }
